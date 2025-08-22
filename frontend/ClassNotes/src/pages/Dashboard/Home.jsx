@@ -1,0 +1,103 @@
+import React from "react";
+import Navbar from "../../components/Navbar";
+import { Link as RouterLink } from "react-router-dom";
+
+// const colleges = [
+//   {
+//     name: "IIT Bombay",
+//     logo: "https://upload.wikimedia.org/wikipedia/en/1/12/IIT_Bombay_Logo.svg",
+//     url: "https://www.iitb.ac.in/",
+//   },
+//   {
+//     name: "IIT Delhi",
+//     logo: "https://upload.wikimedia.org/wikipedia/en/e/e1/IIT_Delhi_Logo.svg",
+//     url: "https://home.iitd.ac.in/",
+//   },
+//   {
+//     name: "IIT Madras",
+//     logo: "https://upload.wikimedia.org/wikipedia/en/2/2e/IIT_Madras_Logo.svg",
+//     url: "https://www.iitm.ac.in/",
+//   },
+//   {
+//     name: "IIT Kanpur",
+//     logo: "https://upload.wikimedia.org/wikipedia/en/0/0c/IIT_Kanpur_Logo.svg",
+//     url: "https://www.iitk.ac.in/",
+//   },
+//   {
+//     name: "IIT Kharagpur",
+//     logo: "https://upload.wikimedia.org/wikipedia/en/0/0e/IIT_Kharagpur_Logo.svg",
+//     url: "https://www.iitkgp.ac.in/",
+//   },
+// ];
+
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-white font-sans text-gray-900 scroll-smooth">
+      {/* Navbar */}
+      <Navbar />
+
+      {/* Hero Section */}
+      <section id="hero" className="text-center py-24 px-6">
+        <h1 className="text-6xl md:text-7xl font-serif font-bold mb-12">
+          Share notes, effortlessly.
+        </h1>
+        <div className="max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl border border-gray-200">
+          <img
+            src="https://sdmntprcentralus.oaiusercontent.com/files/00000000-0c20-61f5-89fa-fe95633abc30/raw?se=2025-08-14T22%3A54%3A37Z&sp=r&sv=2024-08-04&sr=b&scid=14b9d134-0951-5abe-b0d3-96ae73ae25c1&skoid=b0fd38cc-3d33-418f-920e-4798de4acdd1&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-14T19%3A17%3A59Z&ske=2025-08-15T19%3A17%3A59Z&sks=b&skv=2024-08-04&sig=Vjjmjc6IguDQA8r5PtvDRn7Wf2yNAJfKx1FDMfVNBpA%3D"
+            alt="Notes Dashboard Preview"
+            className="w-full"
+          />
+        </div>
+      </section>
+
+      {/* Trusted Colleges */}
+      {/* <section className="py-16 px-6 text-center">
+        <p className="text-gray-500 text-sm mb-8">Trusted by students from:</p>
+        <div className="flex flex-wrap justify-center items-center gap-8">
+          {colleges.map((college, index) => (
+            <a
+              key={index}
+              href={college.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:opacity-80 transition"
+            >
+              <img
+                src={college.logo}
+                alt={college.name}
+                className="h-10 object-contain bg-white p-1 rounded shadow"
+              />
+            </a>
+          ))}
+        </div>
+      </section> */}
+
+      {/* Benefits */}
+      <section id="benefits" className="py-24 px-6 border-t border-gray-100">
+        <p className="text-green-800 font-mono text-sm mb-2">Benefits</p>
+        <h2 className="text-4xl font-serif font-semibold mb-4">
+          We’ve cracked the code.
+        </h2>
+        <p className="text-gray-600 max-w-xl mx-auto">
+          ClassNote brings simplicity to knowledge sharing. No ads, no distractions — just real-time notes shared across colleges.
+        </p>
+      </section>
+
+      {/* Footer CTA */}
+      <footer id="contact" className="py-16 px-6 text-center bg-gray-50">
+        <h3 className="text-2xl font-serif font-medium mb-4">
+          Start sharing your notes now
+        </h3>
+        <p className="text-gray-600 mb-6">
+          Connect with your peers and never miss another lecture note.
+        </p>
+        <RouterLink
+          to="/login"
+          className="inline-block bg-green-900 text-white px-6 py-3 rounded-full text-lg font-medium hover:bg-green-800 transition"
+        >
+          Get Started ↗
+        </RouterLink>
+      </footer>
+    </div>
+  );
+}
