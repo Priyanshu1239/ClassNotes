@@ -4,12 +4,22 @@ import cookieParser from 'cookie-parser';
 import userRouter from './routes/user.routes.js';
 
 const app = express();
+const allowedOrigins = [
+    process.env.FRONTEND_URL,               // local dev
+    "https://class-notes-3n8b.vercel.app"  // your frontend on vercel
+  ];
 
-const corsOptions = {
-    origin: process.env.FRONTEND_URL,  // ✅ without quotes
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD"],
+  const corsOptions = {
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
     credentials: true
-};
+  };
   
 
 app.use(cors(corsOptions));
