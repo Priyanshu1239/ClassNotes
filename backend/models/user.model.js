@@ -49,7 +49,7 @@ userSchema.methods.generateAccessToken = function () {
     if (!tokenSecret) {
         throw new Error("JWT secret not configured");
     }
-    return jwt.sign({ _id: this._id }, tokenSecret, { expiresIn: "15m" });
+    return jwt.sign({ _id: this._id }, tokenSecret, { expiresIn: "1h" });
 };
 
 // Generate Refresh Token

@@ -1,7 +1,6 @@
-import { createContext, useState, useEffect, useContext } from "react";
+// src/context/AuthContext.jsx
+import React, { createContext, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import React from "react";
-
 
 export const AuthContext = createContext();
 
@@ -11,8 +10,29 @@ export const AuthProvider = ({ children }) => {
     const savedUser = localStorage.getItem("user");
     return savedUser ? JSON.parse(savedUser) : null;
   });
-
   const [token, setToken] = useState(() => localStorage.getItem("token") || null);
+
+  const refreshAccessToken = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/refresh-token`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error("Failed to refresh");
+
+      const data = await res.json();
+
+      if (data?.accessToken) {
+        setToken(data.accessToken);
+        localStorage.setItem("token", data.accessToken);
+        return { token: data.accessToken };
+      }
+    } catch (err) {
+      console.error("Refresh failed:", err);
+      logout();
+    }
+  };
 
   const login = (userData, token) => {
     setUser(userData);
@@ -30,12 +50,39 @@ export const AuthProvider = ({ children }) => {
     navigate("/login");
   };
 
+  const fetchWithAuth = async (url, options = {}) => {
+    let res = await fetch(url, {
+      ...options,
+      headers: {
+        ...(options.headers || {}),
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: "include",
+    });
+
+    if (res.status === 401) {
+      const refreshRes = await refreshAccessToken();
+
+      if (refreshRes?.token) {
+        res = await fetch(url, {
+          ...options,
+          headers: {
+            ...(options.headers || {}),
+            Authorization: `Bearer ${refreshRes.token}`,
+          },
+          credentials: "include",
+        });
+      }
+    }
+
+    return res;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, fetchWithAuth }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// 👇 ADD THIS for using in Navbar etc.
 export const useAuth = () => useContext(AuthContext);

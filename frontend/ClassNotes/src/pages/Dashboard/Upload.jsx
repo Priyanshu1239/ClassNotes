@@ -4,11 +4,10 @@ import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function UploadNotes() {
   const navigate = useNavigate();
-  const { user, token } = useAuth();
+  const { user, token, fetchWithAuth, logout } = useAuth();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check if user is authenticated
     if (!user || !token) {
       navigate("/login");
     } else {
@@ -30,16 +29,14 @@ export default function UploadNotes() {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("");
 
-  // ✅ handle text inputs
   const handleChange = (e) => {
-    const { name, value } = e.target;   // FIXED
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  // ✅ handle file input
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
@@ -54,32 +51,31 @@ export default function UploadNotes() {
 
     const data = new FormData();
     for (const key in formData) data.append(key, formData[key]);
-    data.append("file", file); // FIXED (lowercase to match multer)
+    data.append("file", file);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/upload`, {
-        method: "POST",
-        body: data,
-        credentials: "include", // sends cookies (tokens)
-        headers: {
-          "Authorization": `Bearer ${token}`, // Send token in Authorization header
-        },
-      });
+      const res = await fetchWithAuth(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/upload`,
+        {
+          method: "POST",
+          body: data,
+        }
+      );
+
+      if (res.status === 401) {
+        // fallback if refresh token also failed
+        setStatus("Session expired. Redirecting to login...");
+        setTimeout(() => logout(), 2000);
+        return;
+      }
 
       if (!res.ok) {
         const error = await res.json();
-        
-        // Handle authentication errors by redirecting to login
-        if (res.status === 401) {
-          setStatus("Authentication required. Redirecting to login...");
-          setTimeout(() => navigate("/login"), 2000);
-          return;
-        }
-        
         setStatus("Upload failed: " + (error.message || res.statusText));
         return;
       }
 
+      // ✅ success
       setStatus("✅ Upload successful!");
       setFormData({
         name: user?.name || "",
@@ -112,7 +108,7 @@ export default function UploadNotes() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Name (read-only from authenticated user) */}
+        {/* Name */}
         <input
           type="text"
           name="name"
@@ -122,7 +118,7 @@ export default function UploadNotes() {
           className="w-full border border-gray-300 rounded-lg p-3 bg-gray-100 cursor-not-allowed"
         />
 
-        {/* Email (read-only from authenticated user) */}
+        {/* Email */}
         <input
           type="email"
           name="email"

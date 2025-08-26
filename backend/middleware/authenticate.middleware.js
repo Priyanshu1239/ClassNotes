@@ -7,22 +7,23 @@ export const verifyTokenOptional = asyncHandler(async (req, res, next) => {
 
   if (authHeader?.startsWith("Bearer ")) {
     const token = authHeader.split(" ")[1];
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // fetch user from DB
+    try {
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET);
+
       const user = await User.findById(decoded._id).select("-password -refreshToken");
-      if (user) {
-        req.user = user;
-      } else {
-        req.user = null;
-      }
+      req.user = user || null;
     } catch (err) {
-      console.log("Invalid token but proceeding public");
+      if (err.name === "TokenExpiredError") {
+        console.log("⚠️ Token expired, proceeding as public request");
+      } else {
+        console.log("⚠️ Invalid token, proceeding as public request");
+      }
       req.user = null;
     }
   } else {
     req.user = null;
   }
+
   next();
 });

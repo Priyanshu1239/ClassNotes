@@ -10,11 +10,11 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}notes`, {
+        const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/notes`, {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
         const data = await res.json();
-        if (Array.isArray(data.notes)) {
+        if (Array.isArray(data.notes)) { 
           setNotes(data.notes);
         } else {
           setNotes([]); // fallback

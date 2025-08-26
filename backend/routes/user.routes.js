@@ -1,31 +1,26 @@
 import express from "express";
-import { contactUser, registerUser } from "../controllers/user.controller.js";
-import {loginUser} from '../controllers/user.controller.js';
-import { uploadNotes } from "../controllers/notes.controller.js";
+import { contactUser, registerUser, loginUser, refreshAccessToken } from "../controllers/user.controller.js";
+import { uploadNotes, fetchNotes, getAllNotes } from "../controllers/notes.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
-import { fetchNotes } from "../controllers/notes.controller.js";
-import {  verifyTokenOptional } from "../middleware/authenticate.middleware.js";
-import { getAllNotes } from "../controllers/notes.controller.js";
+import { verifyTokenOptional } from "../middleware/authenticate.middleware.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
+// User routes
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+router.post("/refresh-token", refreshAccessToken);
+router.post("/contact", contactUser);
 
-router.post("/register",registerUser)
-router.post("/login",loginUser)
+// Notes routes
 router.post(
-    "/upload", 
-    verifyJWT,
-    upload.fields([{ name: "file", maxCount: 1 }]),
-    uploadNotes
-  );
-
-router.post("/search", fetchNotes);
+  "/upload",
+  verifyJWT,
+  upload.fields([{ name: "file", maxCount: 1 }]),
+  uploadNotes
+);
 router.get("/notes", verifyTokenOptional, getAllNotes);
-router.post("/contact",contactUser);
-
-
-
-
+router.post("/search", fetchNotes);
 
 export default router;

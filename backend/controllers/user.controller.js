@@ -20,11 +20,17 @@ const generateAccessAndRefreshToken = async (userID) => {
         await User.findByIdAndUpdate(userID, { refreshToken }, { new: true });
 
         return { accessToken, refreshToken };
-
     } catch (error) {
         console.error("Error generating tokens:", error.message);
         throw new apiError(500, "Token generation failed");
     }
+};
+
+const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 };
 
 // REGISTER
@@ -35,32 +41,27 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new apiError(400, "Please fill in all fields");
     }
 
-    const user = await User.create({
-        username,
-        email,
-        password,
-    });
-
+    const user = await User.create({ username, email, password });
     const createdUser = await User.findById(user._id).select("-password -refreshToken");
 
     if (!createdUser) {
         throw new apiError(404, "User not found after creation");
     }
 
-    // generate tokens
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
 
-    res.status(201).json(
-        new apiResponse(201, {
-            user: createdUser,
-            accessToken,
-            refreshToken,
-        }, "User created successfully")
-    );
-
-    console.log("User registered successfully");
+    return res
+        .status(201)
+        .cookie("accessToken", accessToken, cookieOptions)
+        .cookie("refreshToken", refreshToken, cookieOptions)
+        .json(
+            new apiResponse(
+                201,
+                { user: createdUser, accessToken, refreshToken },
+                "User created successfully"
+            )
+        );
 });
-
 
 // LOGIN
 const loginUser = asyncHandler(async (req, res) => {
@@ -71,35 +72,17 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     const user = await User.findOne({ email });
-
-    if (!user) {
+    if (!user || !(await user.isPasswordCorrect(password))) {
         throw new apiError(401, "Invalid email or password");
     }
 
-    const isPasswordValid = await user.isPasswordCorrect(password);
-    console.log("Entered Password:", password);
-    console.log("Stored Hashed Password:", user.password);
-    console.log("Password Match:", isPasswordValid);
-
-    if (!isPasswordValid) {
-        throw new apiError(401, "Invalid password");
-    }
-
-    // generate tokens
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
-
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
-
-    const options = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-    };
 
     return res
         .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
+        .cookie("accessToken", accessToken, cookieOptions)
+        .cookie("refreshToken", refreshToken, cookieOptions)
         .json(
             new apiResponse(
                 200,
@@ -108,7 +91,6 @@ const loginUser = asyncHandler(async (req, res) => {
             )
         );
 });
-
 
 // LOGOUT
 const loggedOutUser = asyncHandler(async (req, res) => {
@@ -122,44 +104,66 @@ const loggedOutUser = asyncHandler(async (req, res) => {
         { new: true }
     );
 
-    const options = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-    };
-
     return res
         .status(200)
-        .clearCookie("accessToken", options)
-        .clearCookie("refreshToken", options)
+        .clearCookie("accessToken", cookieOptions)
+        .clearCookie("refreshToken", cookieOptions)
         .json(new apiResponse(200, {}, "User logged out"));
 });
 
-const contactUser = asyncHandler(async(req,res)=>{
-    const {name ,email,subject,message} = req.body;
+// CONTACT
+const contactUser = asyncHandler(async (req, res) => {
+    const { name, email, subject, message } = req.body;
 
-    if(!name || !email || !subject || !message){
+    if (!name || !email || !subject || !message) {
         return res.status(400).json(new apiResponse(400, {}, "Please fill all fields"));
     }
 
-    const contact = await Contact.create({
-        name,
-        email,
-        subject,
-        message
-    })
+    const contact = await Contact.create({ name, email, subject, message });
 
-    res.status(201).json(
-        new apiResponse(201, {
-            contact
-        }, "Contact info sumbitted")
+    return res.status(201).json(
+        new apiResponse(201, { contact }, "Contact info submitted")
     );
-})
+});
 
+// REFRESH TOKEN
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const { refreshToken } = req.cookies;
+
+    if (!refreshToken) {
+        throw new apiError(401, "Refresh token not found");
+    }
+
+    const tokenSecret = process.env.REFRESH_TOKEN_SECRET || process.env.JWT_SECRET;
+    if (!tokenSecret) {
+        throw new apiError(500, "Refresh token secret not configured");
+    }
+
+    try {
+        const decoded = jwt.verify(refreshToken, tokenSecret);
+        const user = await User.findById(decoded._id);
+
+        if (!user) {
+            throw new apiError(404, "User not found");
+        }
+
+        const { accessToken, refreshToken: newRefreshToken } =
+            await generateAccessAndRefreshToken(user._id);
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, cookieOptions)
+            .cookie("refreshToken", newRefreshToken, cookieOptions)
+            .json(new apiResponse(200, { accessToken }, "Access token refreshed"));
+    } catch (error) {
+        throw new apiError(401, "Invalid or expired refresh token");
+    }
+});
 
 export {
     registerUser,
     loginUser,
     loggedOutUser,
-    contactUser
+    contactUser,
+    refreshAccessToken
 };
