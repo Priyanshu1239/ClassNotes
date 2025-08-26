@@ -6,7 +6,8 @@ import userRouter from './routes/user.routes.js';
 const app = express();
 const allowedOrigins = [
     process.env.FRONTEND_URL,               // local dev
-    "https://class-notes-3n8b.vercel.app"  // your frontend on vercel
+    "https://class-notes-3n8b.vercel.app",  // your frontend on vercel
+    "https://class-notes-3n8b-9l8nio6xg-priyanshus-projects-2ac856ed.vercel.app"  // new frontend deployment
   ];
 
   const corsOptions = {
