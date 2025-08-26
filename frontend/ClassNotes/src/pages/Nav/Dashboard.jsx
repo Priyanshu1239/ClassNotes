@@ -10,7 +10,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/v1/notes", {
+        const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}notes`, {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
         const data = await res.json();

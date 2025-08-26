@@ -11,7 +11,7 @@ export default function SearchNotesByTopic() {
     setStatus("Searching...");
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/search", {
+      const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/search`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic })

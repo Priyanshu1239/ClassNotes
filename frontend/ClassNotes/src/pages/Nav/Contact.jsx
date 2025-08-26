@@ -22,7 +22,7 @@ export default function Contact() {
     e.preventDefault();
   
     try {
-      const res = await fetch("http://localhost:8000/api/v1/contact", {
+      const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/contact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

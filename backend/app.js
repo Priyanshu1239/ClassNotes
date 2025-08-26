@@ -5,11 +5,12 @@ import userRouter from './routes/user.routes.js';
 
 const app = express();
 
-const corsOptions={
-    origin:"http://localhost:5176",
-    methods:"GET,POST,PUT,DELETE,PATCH,HEAD",
+const corsOptions = {
+    origin: process.env.FRONTEND_URL,  // ✅ without quotes
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD"],
     credentials: true
 };
+  
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '16kb' }));

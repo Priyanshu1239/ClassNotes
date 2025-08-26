@@ -57,7 +57,7 @@ export default function UploadNotes() {
     data.append("file", file); // FIXED (lowercase to match multer)
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/upload", {
+      const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/upload`, {
         method: "POST",
         body: data,
         credentials: "include", // sends cookies (tokens)

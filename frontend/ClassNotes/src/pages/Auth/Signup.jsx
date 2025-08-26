@@ -39,7 +39,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/register`, {
+      const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
