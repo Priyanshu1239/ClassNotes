@@ -41,11 +41,11 @@ export default function Home() {
         <h1 className="text-6xl md:text-7xl font-serif font-bold mb-12">
           Share notes, effortlessly.
         </h1>
-        <div className="max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl border border-gray-200">
+        <div className="max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl border border-gray-200 hover:shadow-3xl hover:scale-105 transition-all duration-300 transform-gpu">
           <img
-            src="https://sdmntprcentralus.oaiusercontent.com/files/00000000-0c20-61f5-89fa-fe95633abc30/raw?se=2025-08-14T22%3A54%3A37Z&sp=r&sv=2024-08-04&sr=b&scid=14b9d134-0951-5abe-b0d3-96ae73ae25c1&skoid=b0fd38cc-3d33-418f-920e-4798de4acdd1&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-14T19%3A17%3A59Z&ske=2025-08-15T19%3A17%3A59Z&sks=b&skv=2024-08-04&sig=Vjjmjc6IguDQA8r5PtvDRn7Wf2yNAJfKx1FDMfVNBpA%3D"
+            src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
             alt="Notes Dashboard Preview"
-            className="w-full"
+            className="w-full transform hover:scale-105 transition-transform duration-500"
           />
         </div>
       </section>
